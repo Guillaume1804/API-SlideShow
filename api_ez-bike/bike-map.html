@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maps - Velo marseille</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+     <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+
+    <style>
+        #map { 
+            min-height: 880px; 
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="map"></div>
+
+    <script>
+        // Créé l'emplacement de départ de la map
+        // var map = L.map('map').setView([43.300, 5.400], 14);
+
+        // // Créé un marqueur sur la map
+        // var marker = L.marker([43.300, 5.400]).addTo(map);
+
+        // // Créé un cercle sur la map
+        // var circle = L.circle([43.300, 5.400], {
+        //     color: 'red',
+        //     fillColor: '#f03',
+        //     fillOpacity: 0.5,
+        //     radius: 500
+        // }).addTo(map);
+
+        // // Créé un triangle/polygone sur la map
+        // var polygon = L.polygon([
+        //     [43.309, 5.408],
+        //     [43.303, 5.406],
+        //     [43.31, 5.4047]
+        // ]).addTo(map);
+
+        // // Récupére le style de la map et définis le zoom de base
+        // L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        //     maxZoom: 19,
+        //     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        // }).addTo(map);
+
+        // // Affiche le marqueur, le cercle et le polygone sur la map
+        // marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+        // circle.bindPopup("I am a circle.");
+        // polygon.bindPopup("I am a polygon.");
+
+        // // Créé un pop-up à un endroit donné 
+        // var popup = L.popup()
+        // .setLatLng([43.320, 5.42])
+        // .setContent("I am a standalone popup.")
+        // .openOn(map);
+
+        // // Fonction permettant d'afficher les coordonnés selon l'endroit du click sur la map en format d'alert
+        //     // function onMapClick(e) {
+        //     //     alert("You clicked the map at " + e.latlng);
+        //     // }
+
+        //     // map.on('click', onMapClick);
+
+        //     // var popup = L.popup();
+
+
+        // // Fonction permettant d'afficher les coordonnés selon l'endroit du click sur la map en format pop-up
+        // function onMapClick(e) {
+        //     popup
+        //         .setLatLng(e.latlng)
+        //         .setContent("You clicked the map at " + e.latlng.toString())
+        //         .openOn(map);
+        // }
+
+        // map.on('click', onMapClick);
+
+
+        
+
+        var map = L.map('map').setView([43.300, 5.400], 14);
+
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        let apiKey = "?&key=MjE0ZDNmMGEtNGFkZS00M2FlLWFmMWItZGNhOTZhMWQyYzM2";
+
+        function stationInfos() {
+            return fetch("https://api.omega.fifteen.eu/gbfs/2.2/marseille/en/station_information.json" + apiKey) 
+                .then(res => res.json())
+                .then(data => data.data.stations)
+        }
+
+        function stationsStatus() {
+            return fetch("https://api.omega.fifteen.eu/gbfs/2.2/marseille/en/station_status.json" + apiKey)
+            .then(res => res.json())
+            .then(data => data.data.stations)
+        }
+
+        function bikeIcon(nbrBikesAvailable) {
+            if (nbrBikesAvailable > 5) {
+                return L.icon({
+                    // mettre les bonnes images pour plus de 5 
+                    iconUrl: './bike-green.svg',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32],
+                    popupAnchor: [0, -32]
+                })
+            }
+            else if (nbrBikesAvailable > 0) {
+                return L.icon({
+                    // mettre les bonnes images pour plus de 0 mais moin de 5 
+                    iconUrl: './bike-orange.svg',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32],
+                    popupAnchor: [0, -32]
+                })
+            }
+            else {
+                return L.icon({
+                    // mettre les bonnes images pour 0
+                    iconUrl: './bike-red.svg',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32],
+                    popupAnchor: [0, -32]
+                })
+            }
+        }
+
+
+        Promise.all([stationInfos(), stationsStatus()])
+            .then(([stationInfo, stationStatus]) => {
+                let current = 0;
+                let tabAll = [];
+                
+                while (current < stationInfo.length && current < stationStatus.length) {
+                    if (stationInfo[current].station_id === stationStatus[current].station_id) {
+                        tabAll.push({
+                            stationInfo: stationInfo[current],
+                            stationStatus: stationStatus[current]
+                        });
+
+                        let marker = L.marker([parseFloat(tabAll[current].stationInfo.lat), parseFloat(tabAll[current].stationInfo.lon)], {
+                            icon: bikeIcon(tabAll[current].stationStatus.num_bikes_available)
+                        }).addTo(map);
+                        
+                        marker.bindPopup('<b>Nom de la station:</b> ' + tabAll[current].stationInfo.name + '<br><b>Vélos disponibles:</b> ' + tabAll[current].stationStatus.num_bikes_available);
+                    }
+                    current++;
+
+                }
+                console.log(tabAll)
+            })
+            .catch(error => console.error('Erreur lors de la récupération des données:', error))
+
+    </script>
+</body>
+</html>
