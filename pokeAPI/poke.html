@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poke - API</title>
+    <style>
+        #poke-card img {
+            min-width: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="poke-card"></div>
+
+    <script>
+
+        const poke = document.getElementById("poke-card")  
+
+        async function fetchApi() {
+            const response = await fetch("https://pokeapi.co/api/v2/pokemon/?limit=151&offset=151")
+            const resJSON  = await response.json()
+
+            const responseLength = resJSON.results.length            
+            
+            for (i = 0; i < responseLength; i++) {
+                let currentPoke = resJSON.results[i].name;
+                
+                const eachPoke = await fetch("https://pokeapi.co/api/v2/pokemon/" + currentPoke)
+                const eachPokeJSON = await eachPoke.json()
+
+                poke.innerHTML += `
+                    <img src="${eachPokeJSON.sprites.front_default}" alt="">
+                    <h1>
+                        ${eachPokeJSON.forms[0].name}
+                    </h1>
+                    <p>
+                         ${eachPokeJSON.types[0].type.name}
+                    </p>
+                `
+            }
+        }
+
+        fetchApi()
+
+    </script>
+</body>
+</html>
+

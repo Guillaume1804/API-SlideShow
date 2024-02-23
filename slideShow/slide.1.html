@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- Style aplliquer aux éléments du DOM -->
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        /* padding: 100px; */
+      }
+
+      .carousel, .section-ccm {
+        max-width: 1200px;
+        margin: auto;
+        border: 1px solid grey;
+      }
+
+      /* MOBILE */
+      .carousel {
+        display: none;
+      }
+
+      .carousel .slides {
+        max-width: 300px;
+        /* min-width: 300px; */
+        position: relative;
+        margin: auto;
+      }
+
+      .carousel .slide {
+      
+        display: none;
+      }
+
+      .carousel .slide__img {
+        width: 100%;
+      }
+
+      .carousel .prev,
+      .carousel .next {
+        position: absolute;
+        top: 50%;
+        width: auto;
+        padding: 8px;
+        margin-top: -22px;
+        font-size: 20px;
+        cursor: pointer;
+      }
+
+      .carousel .prev {
+        left: 10px;
+      }
+
+      .carousel .next {
+        right: 10px;
+      }ction-ccmon-ccm {
+        display: block;
+      }
+      .section-ccm .slides {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+      }
+
+      .section-ccm .slide {
+        flex: 1 1 400px;
+        text-align: center;
+      }
+
+      @media (max-width: 600px) {
+        .carousel {
+          display: block;
+        }
+
+        .section-ccm {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section-ccm">
+      <div class="slides">
+        <div class="slide">
+          <img
+            class="slide__img"
+            src="https://picsum.photos/200/300?random=1"
+          />
+        </div>
+        <div class="slide">
+          <img
+            class="slide__img"
+            src="https://picsum.photos/200/300?random=2"
+          />
+        </div>
+        <div class="slide">
+          <img
+            class="slide__img"
+            src="https://picsum.photos/200/300?random=3"
+          />
+        </div>
+        <!-- Ajouter plus de slides si besoins -->
+
+        <!-- Bouttons qui gérent la slide actuelle selon quelle btn est clicked -->
+      </div>
+    </div>
+
+    <!-- Conteneur de l'ensemble du carrousse -->
+    <!-- MOBILE -->
+    <div class="carousel">
+      <div class="slides">
+        <div class="slide">
+          <img
+            class="slide__img"
+            src="https://picsum.photos/200/300?random=1"
+          />
+        </div>
+        <div class="slide">
+          <img
+            class="slide__img"
+            src="https://picsum.photos/200/300?random=2"
+          />
+        </div>
+        <div class="slide">
+          <img
+            class="slide__img"
+            src="https://picsum.photos/200/300?random=3"
+          />
+        </div>
+        <!-- Ajouter plus de slides si besoins -->
+
+        <!-- Bouttons qui gérent la slide actuelle selon quelle btn est clicked -->
+        <button class="prev" onclick="plusSlides(-1)">&#10094;</button>
+        <button class="next" onclick="plusSlides(1)">&#10095;</button>
+      </div>
+    </div>
+
+    <!-- script pour le carroussel -->
+    <script>
+      let slideIndex = 1;
+      showSlides(slideIndex);
+
+      function plusSlides(n) {
+        showSlides((slideIndex += n));
+      }
+
+      function showSlides(n) {
+        const slides = document.querySelectorAll(".carousel .slide");
+        console.log(slides);
+
+        if (n > slides.length) {
+          slideIndex = 1;
+        }
+
+        if (n < 1) {
+          slideIndex = slides.length;
+        }
+
+        for (i = 0; i < slides.length; i++) {
+          slides[i].style.display = "none";
+        }
+
+        slides[slideIndex - 1].style.display = "block";
+      }
+    </script>
+  </body>
+</html>
